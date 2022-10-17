@@ -7,6 +7,8 @@ from settings import *
 class Game:
     def __init__(self):
         pygame.init()
+        pygame_icon = pygame.image.load('../graphics/weapons/sword/full.png')
+        pygame.display.set_icon(pygame_icon)
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Zelda')
         self.clock = pygame.time.Clock()
