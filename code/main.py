@@ -2,7 +2,7 @@ import sys
 
 import pygame
 from level import Level
-from settings import *
+from settings import FPS, HEIGHT, WIDTH
 
 
 class Game:

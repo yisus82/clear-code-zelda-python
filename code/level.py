@@ -2,8 +2,8 @@ from random import choice
 
 import pygame
 from player import Player
-from settings import *
-from support import *
+from settings import TILESIZE
+from support import import_csv_file, import_folder
 from tile import Tile
 
 
