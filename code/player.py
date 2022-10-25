@@ -1,11 +1,12 @@
 from os import path
 
 import pygame
+from settings import WEAPONS
 from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, groups, obstacle_sprites):
+    def __init__(self, position, groups, obstacle_sprites, create_attack, destroy_attack):
         super().__init__(groups)
         self.import_player_assets()
         self.status = 'down_idle'
@@ -20,9 +21,16 @@ class Player(pygame.sprite.Sprite):
         self.attack_time = 0
         self.attack_cooldown = 400
         self.obstacle_sprites = obstacle_sprites
+        self.weapon_index = 0
+        self.weapon = [*WEAPONS][self.weapon_index]
+        self.switching_weapon = False
+        self.weapon_switch_time = 0
+        self.weapon_switch_cooldown = 200
+        self.create_attack = create_attack
+        self.destroy_attack = destroy_attack
 
     def import_player_assets(self):
-        character_folder = '../graphics/player/'
+        character_folder = path.join('..', 'graphics', 'player')
         self.animations = {
             'up': [],
             'up_idle': [],
@@ -61,13 +69,19 @@ class Player(pygame.sprite.Sprite):
                 self.attack_time = pygame.time.get_ticks()
                 self.direction.x = 0
                 self.direction.y = 0
-                print('attack')
-            if keys[pygame.K_LCTRL] or keys[pygame.K_k]:
+                self.create_attack()
+            elif keys[pygame.K_LCTRL] or keys[pygame.K_k]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.direction.x = 0
                 self.direction.y = 0
                 print('magic')
+            elif not self.switching_weapon and keys[pygame.K_LALT] or keys[pygame.K_l]:
+                self.switching_weapon = True
+                self.weapon_switch_time = pygame.time.get_ticks()
+                self.direction.x = 0
+                self.direction.y = 0
+                self.change_weapon()
 
     def move(self):
         if self.rect is not None:
@@ -96,10 +110,17 @@ class Player(pygame.sprite.Sprite):
                         elif self.direction.y < 0:  # moving up
                             self.hitbox.top = sprite.hitbox.bottom
 
+    def change_weapon(self):
+        self.weapon_index = (self.weapon_index + 1) % len(WEAPONS)
+        self.weapon = [*WEAPONS][self.weapon_index]
+
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
         if self.attacking and current_time - self.attack_time >= self.attack_cooldown:
             self.attacking = False
+            self.destroy_attack()
+        if self.switching_weapon and current_time - self.weapon_switch_time >= self.weapon_switch_cooldown:
+            self.switching_weapon = False
 
     def update_status(self):
         if self.direction.x == 0 and self.direction.y == 0:
@@ -124,6 +145,6 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.cooldowns()
         self.input()
+        self.update_status()
         self.animate()
         self.move()
-        self.update_status()

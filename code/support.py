@@ -5,6 +5,7 @@ import pygame
 
 
 def import_csv_file(pathname):
+    pathname = path.normpath(pathname)
     terrain_map = []
     with open(pathname, 'r') as level_map:
         layout = reader(level_map, delimiter=',')
@@ -14,6 +15,7 @@ def import_csv_file(pathname):
 
 
 def import_folder(pathname):
+    pathname = path.normpath(pathname)
     image_surfaces = []
     for _, _, filenames in walk(pathname):
         for filename in sorted(filenames):

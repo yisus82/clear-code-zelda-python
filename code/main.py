@@ -1,4 +1,5 @@
 import sys
+from os import path
 
 import pygame
 from level import Level
@@ -8,7 +9,8 @@ from settings import FPS, HEIGHT, WIDTH
 class Game:
     def __init__(self):
         pygame.init()
-        pygame_icon = pygame.image.load('../graphics/weapons/sword/full.png')
+        icon_path = path.join('..', 'graphics', 'weapons', 'sword', 'full.png')
+        pygame_icon = pygame.image.load(icon_path)
         pygame.display.set_icon(pygame_icon)
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Zelda')

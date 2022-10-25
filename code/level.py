@@ -1,3 +1,4 @@
+from os import path
 from random import choice
 
 import pygame
@@ -5,12 +6,14 @@ from player import Player
 from settings import TILESIZE
 from support import import_csv_file, import_folder
 from tile import Tile
+from weapon import Weapon
 
 
 class Level:
     def __init__(self):
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.current_attack = None
         self.create_map()
 
     def create_map(self):
@@ -40,7 +43,15 @@ class Level:
                             Tile((x, y), [self.visible_sprites,
                                  self.obstacle_sprites], 'object', object_image)
         self.player = Player(
-            (2000, 1430), [self.visible_sprites], self.obstacle_sprites)
+            (2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+
+    def create_attack(self):
+        self.current_attack = Weapon(self.player, [self.visible_sprites])
+
+    def destroy_attack(self):
+        if self.current_attack is not None:
+            self.current_attack.kill()
+            self.current_attack = None
 
     def run(self):
         self.visible_sprites.update()
@@ -53,8 +64,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.half_width = self.display_surface.get_size()[0] // 2
         self.half_height = self.display_surface.get_size()[1] // 2
-        self.floor_surface = pygame.image.load(
-            '../graphics/tilemap/ground.png').convert()
+        floor_path = path.join('..', 'graphics', 'tilemap', 'ground.png')
+        self.floor_surface = pygame.image.load(floor_path).convert()
         self.floor_rect = self.floor_surface.get_rect(topleft=(0, 0))
 
     def custom_draw(self, player):
