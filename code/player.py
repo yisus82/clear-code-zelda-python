@@ -16,7 +16,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=position)
         self.hitbox = self.rect.inflate(-1, -25)
         self.direction = pygame.math.Vector2()
-        self.speed = 5
         self.attacking = False
         self.attack_time = 0
         self.attack_cooldown = 400
@@ -26,6 +25,19 @@ class Player(pygame.sprite.Sprite):
         self.switching_weapon = False
         self.weapon_switch_time = 0
         self.weapon_switch_cooldown = 200
+        self.initial_stats = {
+            'health': 100,
+            'mana': 60,
+            'attack': 10,
+            'magic': 4,
+            'speed': 5,
+        }
+        self.current_stats = {
+            'health': self.initial_stats['health'],
+            'mana': self.initial_stats['mana'],
+            'speed': self.initial_stats['speed'],
+            'exp': 0,
+        }
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
 
@@ -87,9 +99,11 @@ class Player(pygame.sprite.Sprite):
         if self.rect is not None:
             if self.direction.magnitude() != 0:
                 self.direction = self.direction.normalize()
-            self.hitbox.move_ip(self.direction.x * self.speed, 0)
+            self.hitbox.move_ip(self.direction.x *
+                                self.current_stats['speed'], 0)
             self.collide('horizontal')
-            self.hitbox.move_ip(0, self.direction.y * self.speed)
+            self.hitbox.move_ip(0, self.direction.y *
+                                self.current_stats['speed'])
             self.collide('vertical')
             self.rect.center = self.hitbox.center
 

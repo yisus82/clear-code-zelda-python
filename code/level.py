@@ -6,6 +6,7 @@ from player import Player
 from settings import TILESIZE
 from support import import_csv_file, import_folder
 from tile import Tile
+from ui import UI
 from weapon import Weapon
 
 
@@ -15,6 +16,7 @@ class Level:
         self.obstacle_sprites = pygame.sprite.Group()
         self.current_attack = None
         self.create_map()
+        self.ui = UI(self.player)
 
     def create_map(self):
         layouts = {
@@ -56,6 +58,7 @@ class Level:
     def run(self):
         self.visible_sprites.update()
         self.visible_sprites.custom_draw(self.player)
+        self.ui.draw()
 
 
 class YSortCameraGroup(pygame.sprite.Group):
