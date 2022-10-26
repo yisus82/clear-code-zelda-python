@@ -3,7 +3,7 @@ from os import path
 
 import pygame
 from level import Level
-from settings import FPS, HEIGHT, WIDTH
+from settings import FPS, WINDOW_HEIGHT, WINDOW_WIDTH
 
 
 class Game:
@@ -12,7 +12,7 @@ class Game:
         icon_path = path.join('..', 'graphics', 'weapons', 'sword', 'full.png')
         pygame_icon = pygame.image.load(icon_path)
         pygame.display.set_icon(pygame_icon)
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('Zelda')
         self.clock = pygame.time.Clock()
         self.level = Level()
