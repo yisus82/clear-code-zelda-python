@@ -10,9 +10,9 @@ class Weapon(pygame.sprite.Sprite):
         if direction not in ['up', 'down', 'left', 'right']:
             direction = 'full'
         weapons_folder = path.join('..', 'graphics', 'weapons')
-        weapon_image = path.join(
+        weapon_file = path.join(
             weapons_folder, player.weapon, direction + '.png')
-        self.image = pygame.image.load(weapon_image).convert_alpha()
+        self.image = pygame.image.load(weapon_file).convert_alpha()
         if direction == 'right':
             image_offset = pygame.math.Vector2(0, 16)
             self.rect = self.image.get_rect(

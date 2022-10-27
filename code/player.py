@@ -88,7 +88,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = 0
                 self.direction.y = 0
                 print('magic')
-            elif not self.switching_weapon and keys[pygame.K_LALT] or keys[pygame.K_l]:
+            elif not self.switching_weapon and (keys[pygame.K_LALT] or keys[pygame.K_l]):
                 self.switching_weapon = True
                 self.weapon_switch_time = pygame.time.get_ticks()
                 self.direction.x = 0
