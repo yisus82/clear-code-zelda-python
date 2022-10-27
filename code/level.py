@@ -45,7 +45,13 @@ class Level:
                             Tile((x, y), [self.visible_sprites,
                                  self.obstacle_sprites], 'object', object_image)
         self.player = Player(
-            (2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+            (2000, 1430),
+            [self.visible_sprites],
+            self.obstacle_sprites,
+            self.create_attack,
+            self.destroy_attack,
+            self.create_spell,
+            self.destroy_spell)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
@@ -54,6 +60,15 @@ class Level:
         if self.current_attack is not None:
             self.current_attack.kill()
             self.current_attack = None
+
+    def create_spell(self):
+        print('Casting', self.player.spell['name'], '...')
+        print(
+            'strength:', self.player.spell['strength'] +
+            self.player.current_stats['magic'], 'cost:', self.player.spell['cost'])
+
+    def destroy_spell(self):
+        print(self.player.spell['name'], 'casted')
 
     def run(self):
         self.visible_sprites.update()

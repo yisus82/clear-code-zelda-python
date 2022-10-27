@@ -9,9 +9,8 @@ class Weapon(pygame.sprite.Sprite):
         direction = player.status.split('_')[0]
         if direction not in ['up', 'down', 'left', 'right']:
             direction = 'full'
-        weapons_folder = path.join('..', 'graphics', 'weapons')
-        weapon_file = path.join(
-            weapons_folder, player.weapon, direction + '.png')
+        weapon_file = path.normpath(
+            player.weapon['graphic']).replace('full', direction)
         self.image = pygame.image.load(weapon_file).convert_alpha()
         if direction == 'right':
             image_offset = pygame.math.Vector2(0, 16)

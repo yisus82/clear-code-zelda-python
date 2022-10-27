@@ -33,26 +33,46 @@ WEAPONS = {
     'sword': {
         'cooldown': 100,
         'damage': 15,
-        'graphic': '../graphics/weapons/sword/full.png'
+        'graphic': '../graphics/weapons/sword/full.png',
+        'name': 'Sword',
     },
     'lance': {
         'cooldown': 400,
         'damage': 30,
-        'graphic': '../graphics/weapons/lance/full.png'
+        'graphic': '../graphics/weapons/lance/full.png',
+        'name': 'Lance',
     },
     'axe': {
         'cooldown': 300,
         'damage': 20,
-        'graphic': '../graphics/weapons/axe/full.png'
+        'graphic': '../graphics/weapons/axe/full.png',
+        'name': 'Axe',
     },
     'rapier': {
         'cooldown': 50,
         'damage': 8,
-        'graphic': '../graphics/weapons/rapier/full.png'
+        'graphic': '../graphics/weapons/rapier/full.png',
+        'name': 'Rapier',
     },
     'sai': {
         'cooldown': 80,
         'damage': 10,
-        'graphic': '../graphics/weapons/sai/full.png'
+        'graphic': '../graphics/weapons/sai/full.png',
+        'name': 'Sai',
     }
 }
+
+# spells
+SPELLS = {
+    'flame': {
+        'strength': 5,
+        'cost': 20,
+        'graphic': '../graphics/spells/flame/full.png',
+        'name': 'Flame',
+    },
+    'heal': {
+        'strength': 20,
+        'cost': 10,
+        'graphic': '../graphics/spells/heal/full.png',
+        'name': 'Heal',
+    }}

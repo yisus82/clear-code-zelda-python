@@ -1,12 +1,13 @@
 from os import path
 
 import pygame
-from settings import WEAPONS
+from settings import SPELLS, WEAPONS
 from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, groups, obstacle_sprites, create_attack, destroy_attack):
+    def __init__(self, position, groups, obstacle_sprites, create_attack, destroy_attack,
+                 create_spell, destroy_spell):
         super().__init__(groups)
         self.import_player_assets()
         self.status = 'down_idle'
@@ -21,10 +22,19 @@ class Player(pygame.sprite.Sprite):
         self.attack_cooldown = 400
         self.obstacle_sprites = obstacle_sprites
         self.weapon_index = 0
-        self.weapon = [*WEAPONS][self.weapon_index]
+        self.weapon = WEAPONS[[*WEAPONS][self.weapon_index]]
         self.switching_weapon = False
         self.weapon_switch_time = 0
         self.weapon_switch_cooldown = 200
+        self.create_attack = create_attack
+        self.destroy_attack = destroy_attack
+        self.spell_index = 0
+        self.spell = SPELLS[[*SPELLS][self.spell_index]]
+        self.switching_spell = False
+        self.spell_switch_time = 0
+        self.spell_switch_cooldown = 200
+        self.create_spell = create_spell
+        self.destroy_spell = destroy_spell
         self.initial_stats = {
             'health': 100,
             'mana': 60,
@@ -36,10 +46,10 @@ class Player(pygame.sprite.Sprite):
             'health': self.initial_stats['health'],
             'mana': self.initial_stats['mana'],
             'speed': self.initial_stats['speed'],
+            'attack': self.initial_stats['attack'],
+            'magic': self.initial_stats['magic'],
             'exp': 0,
         }
-        self.create_attack = create_attack
-        self.destroy_attack = destroy_attack
 
     def import_player_assets(self):
         character_folder = path.join('..', 'graphics', 'player')
@@ -87,13 +97,19 @@ class Player(pygame.sprite.Sprite):
                 self.attack_time = pygame.time.get_ticks()
                 self.direction.x = 0
                 self.direction.y = 0
-                print('magic')
-            elif not self.switching_weapon and (keys[pygame.K_LALT] or keys[pygame.K_l]):
+                self.create_spell()
+            elif not self.switching_weapon and (keys[pygame.K_LALT] or keys[pygame.K_u]):
                 self.switching_weapon = True
                 self.weapon_switch_time = pygame.time.get_ticks()
                 self.direction.x = 0
                 self.direction.y = 0
                 self.change_weapon()
+            elif not self.switching_spell and (keys[pygame.K_LSHIFT] or keys[pygame.K_i]):
+                self.switching_spell = True
+                self.spell_switch_time = pygame.time.get_ticks()
+                self.direction.x = 0
+                self.direction.y = 0
+                self.change_spell()
 
     def move(self):
         if self.rect is not None:
@@ -126,15 +142,22 @@ class Player(pygame.sprite.Sprite):
 
     def change_weapon(self):
         self.weapon_index = (self.weapon_index + 1) % len(WEAPONS)
-        self.weapon = [*WEAPONS][self.weapon_index]
+        self.weapon = WEAPONS[[*WEAPONS][self.weapon_index]]
+
+    def change_spell(self):
+        self.spell_index = (self.spell_index + 1) % len(SPELLS)
+        self.spell = SPELLS[[*SPELLS][self.spell_index]]
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
         if self.attacking and current_time - self.attack_time >= self.attack_cooldown:
             self.attacking = False
             self.destroy_attack()
+            self.destroy_spell()
         if self.switching_weapon and current_time - self.weapon_switch_time >= self.weapon_switch_cooldown:
             self.switching_weapon = False
+        if self.switching_spell and current_time - self.spell_switch_time >= self.spell_switch_cooldown:
+            self.switching_spell = False
 
     def update_status(self):
         if self.direction.x == 0 and self.direction.y == 0:

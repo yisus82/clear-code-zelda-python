@@ -41,30 +41,41 @@ class UI:
                          box_rect, EXP_BORDER_WIDTH)
         self.display_surface.blit(text_surface, text_rect)
 
-    def draw_selection_box(self, x, y, image=None):
+    def draw_selection_box(self, x, y, active=False, image=None):
         box_rect = pygame.Rect(x, y, ITEM_BOX_SIZE, ITEM_BOX_SIZE)
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, box_rect)
-        if self.player.switching_weapon:
-            pygame.draw.rect(self.display_surface, UI_BORDER_COLOR_ACTIVE,
-                             box_rect, ITEM_BOX_BORDER_WIDTH)
+        if active:
+            border_color = UI_BORDER_COLOR_ACTIVE
         else:
-            pygame.draw.rect(self.display_surface, UI_BORDER_COLOR,
-                             box_rect, ITEM_BOX_BORDER_WIDTH)
+            border_color = UI_BORDER_COLOR
+        pygame.draw.rect(self.display_surface, border_color,
+                         box_rect, ITEM_BOX_BORDER_WIDTH)
         if image is not None:
             image_rect = image.get_rect(center=box_rect.center)
             self.display_surface.blit(image, image_rect)
 
     def draw_weapon_box(self):
-        weapons_folder = path.join('..', 'graphics', 'weapons')
-        weapon_file = path.join(weapons_folder, self.player.weapon, 'full.png')
+        weapon_file = path.normpath(self.player.weapon['graphic'])
         weapon_image = pygame.image.load(weapon_file).convert_alpha()
         self.draw_selection_box(
-            ITEM_BOX_MARGIN, WINDOW_HEIGHT - ITEM_BOX_MARGIN - ITEM_BOX_SIZE, weapon_image)
+            ITEM_BOX_MARGIN, WINDOW_HEIGHT - ITEM_BOX_MARGIN - ITEM_BOX_SIZE,
+            self.player.switching_weapon, weapon_image)
+
+    def draw_spell_box(self):
+        spell_file = path.normpath(self.player.spell['graphic'])
+        spell_image = pygame.image.load(spell_file).convert_alpha()
+        self.draw_selection_box(
+            2 * ITEM_BOX_MARGIN + ITEM_BOX_SIZE, WINDOW_HEIGHT -
+            ITEM_BOX_MARGIN - ITEM_BOX_SIZE,
+            self.player.switching_spell, spell_image)
 
     def draw(self):
         self.draw_bar(
-            self.player.current_stats['health'], self.player.initial_stats['health'], HEALTH_COLOR, self.health_bg_rect)
+            self.player.current_stats['health'], self.player.initial_stats['health'], HEALTH_COLOR,
+            self.health_bg_rect)
         self.draw_bar(
-            self.player.current_stats['mana'], self.player.initial_stats['mana'], MANA_COLOR, self.mana_bg_rect)
+            self.player.current_stats['mana'], self.player.initial_stats['mana'], MANA_COLOR,
+            self.mana_bg_rect)
         self.draw_exp(self.player.current_stats['exp'])
         self.draw_weapon_box()
+        self.draw_spell_box()
