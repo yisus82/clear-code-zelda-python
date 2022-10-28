@@ -1,26 +1,24 @@
 from os import path
 
 import pygame
+from entity import Entity
 from settings import SPELLS, WEAPONS
 from support import import_folder
 
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, position, groups, obstacle_sprites, create_attack, destroy_attack,
                  create_spell, destroy_spell):
-        super().__init__(groups)
+        super().__init__(position, groups, obstacle_sprites)
+        self.sprite_type = 'player'
         self.import_player_assets()
         self.status = 'down_idle'
-        self.frame_index = 0
-        self.animation_speed = 0.15
-        self.image = self.animations[self.status][0]
+        self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
         self.hitbox = self.rect.inflate(-1, -25)
-        self.direction = pygame.math.Vector2()
         self.attacking = False
         self.attack_time = 0
         self.attack_cooldown = 400
-        self.obstacle_sprites = obstacle_sprites
         self.weapon_index = 0
         self.weapon = WEAPONS[[*WEAPONS][self.weapon_index]]
         self.switching_weapon = False
@@ -52,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         }
 
     def import_player_assets(self):
-        character_folder = path.join('..', 'graphics', 'player')
+        player_folder = path.join('..', 'graphics', 'player')
         self.animations = {
             'up': [],
             'up_idle': [],
@@ -68,7 +66,7 @@ class Player(pygame.sprite.Sprite):
             'right_attack': [],
         }
         for animation_name in self.animations.keys():
-            animation_folder = path.join(character_folder, animation_name)
+            animation_folder = path.join(player_folder, animation_name)
             self.animations[animation_name] = import_folder(animation_folder)
 
     def input(self):
@@ -110,35 +108,6 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = 0
                 self.direction.y = 0
                 self.change_spell()
-
-    def move(self):
-        if self.rect is not None:
-            if self.direction.magnitude() != 0:
-                self.direction = self.direction.normalize()
-            self.hitbox.move_ip(self.direction.x *
-                                self.current_stats['speed'], 0)
-            self.collide('horizontal')
-            self.hitbox.move_ip(0, self.direction.y *
-                                self.current_stats['speed'])
-            self.collide('vertical')
-            self.rect.center = self.hitbox.center
-
-    def collide(self, direction):
-        if self.rect is not None:
-            if direction == 'horizontal':
-                for sprite in self.obstacle_sprites:
-                    if sprite.hitbox.colliderect(self.hitbox):
-                        if self.direction.x > 0:  # moving right
-                            self.hitbox.right = sprite.hitbox.left
-                        elif self.direction.x < 0:  # moving left
-                            self.hitbox.left = sprite.hitbox.right
-            elif direction == 'vertical':
-                for sprite in self.obstacle_sprites:
-                    if sprite.hitbox.colliderect(self.hitbox):
-                        if self.direction.y > 0:  # moving down
-                            self.hitbox.bottom = sprite.hitbox.top
-                        elif self.direction.y < 0:  # moving up
-                            self.hitbox.top = sprite.hitbox.bottom
 
     def change_weapon(self):
         self.weapon_index = (self.weapon_index + 1) % len(WEAPONS)

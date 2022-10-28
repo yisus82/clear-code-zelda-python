@@ -2,6 +2,7 @@ from os import path
 from random import choice
 
 import pygame
+from enemy import Enemy
 from player import Player
 from settings import TILESIZE
 from support import import_csv_file, import_folder
@@ -15,6 +16,14 @@ class Level:
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
         self.current_attack = None
+        self.current_spell = None
+        self.entities = {
+            '390': 'bamboo',
+            '391': 'spirit',
+            '392': 'raccoon',
+            '393': 'squid',
+            '394': 'player',
+        }
         self.create_map()
         self.ui = UI(self.player)
 
@@ -22,11 +31,12 @@ class Level:
         layouts = {
             'boundary': import_csv_file('../map/map_FloorBlocks.csv'),
             'grass': import_csv_file('../map/map_Grass.csv'),
-            'objects': import_csv_file('../map/map_Objects.csv')
+            'objects': import_csv_file('../map/map_Objects.csv'),
+            'entities': import_csv_file('../map/map_Entities.csv'),
         }
         graphics = {
             'grass': import_folder('../graphics/grass/'),
-            'objects': import_folder('../graphics/objects/')
+            'objects': import_folder('../graphics/objects/'),
         }
         for style, layout in layouts.items():
             for row_index, row in enumerate(layout):
@@ -44,14 +54,22 @@ class Level:
                             object_image = graphics['objects'][int(column)]
                             Tile((x, y), [self.visible_sprites,
                                  self.obstacle_sprites], 'object', object_image)
-        self.player = Player(
-            (2000, 1430),
-            [self.visible_sprites],
-            self.obstacle_sprites,
-            self.create_attack,
-            self.destroy_attack,
-            self.create_spell,
-            self.destroy_spell)
+                        elif style == 'entities':
+                            if column == '394':
+                                self.player = Player(
+                                    (x, y),
+                                    [self.visible_sprites],
+                                    self.obstacle_sprites,
+                                    self.create_attack,
+                                    self.destroy_attack,
+                                    self.create_spell,
+                                    self.destroy_spell)
+                            else:
+                                Enemy(
+                                    (x, y),
+                                    [self.visible_sprites],
+                                    self.entities[column],
+                                    self.obstacle_sprites)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
@@ -62,13 +80,16 @@ class Level:
             self.current_attack = None
 
     def create_spell(self):
-        print('Casting', self.player.spell['name'], '...')
+        self.current_spell = self.player.spell['name']
+        print('Casting', self.current_spell, '...')
         print(
             'strength:', self.player.spell['strength'] +
             self.player.current_stats['magic'], 'cost:', self.player.spell['cost'])
 
     def destroy_spell(self):
-        print(self.player.spell['name'], 'casted')
+        if self.current_spell is not None:
+            print(self.current_spell, 'casted!')
+            self.current_spell = None
 
     def run(self):
         self.visible_sprites.update()
