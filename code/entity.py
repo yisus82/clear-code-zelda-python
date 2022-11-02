@@ -5,16 +5,35 @@ from settings import TILESIZE
 class Entity(pygame.sprite.Sprite):
     def __init__(self, position, groups, obstacle_sprites):
         super().__init__(groups)
-        self.obstacle_sprites = obstacle_sprites
+        self.sprite_type = 'entity'
+        self.status = 'idle'
+        self.import_animations()
         self.frame_index = 0
         self.animation_speed = 0.15
-        self.direction = pygame.math.Vector2()
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
+        if self.status in self.animations:
+            self.image = self.animations[self.status][self.frame_index]
+        else:
+            self.image = pygame.Surface((TILESIZE, TILESIZE))
         self.rect = self.image.get_rect(topleft=position)
-        self.hitbox = self.rect.inflate(-1, -25)
+        if self.rect is not None:
+            self.hitbox = self.rect.inflate(-1, -10)
+        self.obstacle_sprites = obstacle_sprites
+        self.direction = pygame.math.Vector2()
         self.current_stats = {
             'speed': 1,
         }
+
+    def import_animations(self):
+        self.animations = {}
+
+    def animate(self):
+        if self.status in self.animations:
+            animation = self.animations[self.status]
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(animation):
+                self.frame_index = 0
+            self.image = animation[int(self.frame_index)]
+            self.rect = self.image.get_rect(center=self.hitbox.center)
 
     def move(self):
         if self.rect is not None:

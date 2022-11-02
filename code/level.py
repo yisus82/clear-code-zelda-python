@@ -94,6 +94,7 @@ class Level:
     def run(self):
         self.visible_sprites.update()
         self.visible_sprites.custom_draw(self.player)
+        self.visible_sprites.enemy_update(self.player)
         self.ui.draw()
 
 
@@ -116,3 +117,9 @@ class YSortCameraGroup(pygame.sprite.Group):
             if sprite.image is not None and sprite.rect is not None:
                 offset_position = sprite.rect.move(-offset[0], -offset[1])
                 self.display_surface.blit(sprite.image, offset_position)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites()
+                         if type(sprite) is Enemy]
+        for sprite in enemy_sprites:
+            sprite.enemy_update(player)

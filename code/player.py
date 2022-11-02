@@ -11,7 +11,7 @@ class Player(Entity):
                  create_spell, destroy_spell):
         super().__init__(position, groups, obstacle_sprites)
         self.sprite_type = 'player'
-        self.import_player_assets()
+        self.import_animations()
         self.status = 'down_idle'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
@@ -49,7 +49,7 @@ class Player(Entity):
             'exp': 0,
         }
 
-    def import_player_assets(self):
+    def import_animations(self):
         player_folder = path.join('..', 'graphics', 'player')
         self.animations = {
             'up': [],
@@ -142,15 +142,9 @@ class Player(Entity):
         if self.attacking:
             self.status = self.status.split('_')[0] + '_attack'
 
-    def animate(self):
-        animation = self.animations[self.status]
-        self.frame_index += self.animation_speed
-        self.image = animation[int(self.frame_index % len(animation))]
-        self.rect = self.image.get_rect(center=self.hitbox.center)
-
     def update(self):
         self.cooldowns()
         self.input()
         self.update_status()
-        self.animate()
         self.move()
+        self.animate()
