@@ -26,6 +26,9 @@ class Player(Entity):
         self.weapon_switch_cooldown = 200
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
+        self.casting = False
+        self.casting_time = 0
+        self.casting_cooldown = 400
         self.spell_index = 0
         self.spell = SPELLS[[*SPELLS][self.spell_index]]
         self.switching_spell = False
@@ -33,6 +36,9 @@ class Player(Entity):
         self.spell_switch_cooldown = 200
         self.create_spell = create_spell
         self.destroy_spell = destroy_spell
+        self.invulnerable = False
+        self.invulnerability_time = 0
+        self.invulnerability_cooldown = 500
         self.initial_stats = {
             'health': 100,
             'mana': 60,
@@ -70,7 +76,7 @@ class Player(Entity):
             self.animations[animation_name] = import_folder(animation_folder)
 
     def input(self):
-        if not self.attacking:
+        if not self.attacking and not self.casting:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP] or keys[pygame.K_w]:
                 self.direction.y = -1
@@ -91,8 +97,8 @@ class Player(Entity):
                 self.direction.y = 0
                 self.create_attack()
             elif keys[pygame.K_LCTRL] or keys[pygame.K_k]:
-                self.attacking = True
-                self.attack_time = pygame.time.get_ticks()
+                self.casting = True
+                self.casting_time = pygame.time.get_ticks()
                 self.direction.x = 0
                 self.direction.y = 0
                 self.create_spell()
@@ -113,20 +119,45 @@ class Player(Entity):
         self.weapon_index = (self.weapon_index + 1) % len(WEAPONS)
         self.weapon = WEAPONS[[*WEAPONS][self.weapon_index]]
 
+    def get_full_weapon_damage(self):
+        return self.weapon['damage'] + self.current_stats['attack']
+
+    def get_full_spell_damage(self):
+        return self.spell['damage'] + self.current_stats['magic']
+
     def change_spell(self):
         self.spell_index = (self.spell_index + 1) % len(SPELLS)
         self.spell = SPELLS[[*SPELLS][self.spell_index]]
 
+    def take_damage(self, amount):
+        if not self.invulnerable:
+            self.invulnerable = True
+            self.invulnerability_time = pygame.time.get_ticks()
+            self.current_stats['health'] -= amount
+            if self.current_stats['health'] <= 0:
+                self.kill()
+
+    def hit_reaction(self):
+        if self.invulnerable:
+            if self.image is not None:
+                self.image.set_alpha(self.flicker_alpha_value())
+        elif self.image is not None:
+            self.image.set_alpha(255)
+
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
-        if self.attacking and current_time - self.attack_time >= self.attack_cooldown:
+        if self.attacking and current_time - self.attack_time >= self.attack_cooldown + self.weapon['cooldown']:
             self.attacking = False
             self.destroy_attack()
+        if self.casting and current_time - self.casting_time >= self.casting_cooldown:
+            self.casting = False
             self.destroy_spell()
         if self.switching_weapon and current_time - self.weapon_switch_time >= self.weapon_switch_cooldown:
             self.switching_weapon = False
         if self.switching_spell and current_time - self.spell_switch_time >= self.spell_switch_cooldown:
             self.switching_spell = False
+        if self.invulnerable and current_time - self.invulnerability_time >= self.invulnerability_cooldown:
+            self.invulnerable = False
 
     def update_status(self):
         if self.direction.x == 0 and self.direction.y == 0:
@@ -144,6 +175,7 @@ class Player(Entity):
 
     def update(self):
         self.cooldowns()
+        self.hit_reaction()
         self.input()
         self.update_status()
         self.move()

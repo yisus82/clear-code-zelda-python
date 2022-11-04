@@ -1,3 +1,5 @@
+from math import sin
+
 import pygame
 from settings import TILESIZE
 
@@ -22,6 +24,12 @@ class Entity(pygame.sprite.Sprite):
         self.current_stats = {
             'speed': 1,
         }
+
+    def flicker_alpha_value(self):
+        if sin(pygame.time.get_ticks()) > 0:
+            return 255
+        else:
+            return 0
 
     def import_animations(self):
         self.animations = {}

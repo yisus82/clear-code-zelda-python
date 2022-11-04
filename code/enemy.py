@@ -7,7 +7,7 @@ from support import import_folder
 
 
 class Enemy(Entity):
-    def __init__(self, position, groups, enemy_type, obstacle_sprites):
+    def __init__(self, position, groups, enemy_type, obstacle_sprites, damage_player):
         self.enemy_type = enemy_type
         super().__init__(position, groups, obstacle_sprites)
         self.sprite_type = 'enemy'
@@ -19,7 +19,11 @@ class Enemy(Entity):
         self.attacking = False
         self.attack_time = 0
         self.attack_cooldown = 400
-        self.current_stats = ENEMIES[self.enemy_type]
+        self.damage_player = damage_player
+        self.invulnerable = False
+        self.invulnerability_time = 0
+        self.invulnerability_cooldown = 300
+        self.current_stats = ENEMIES[self.enemy_type].copy()
 
     def import_animations(self):
         enemy_folder = path.join('..', 'graphics', 'enemies')
@@ -55,10 +59,32 @@ class Enemy(Entity):
         else:
             return pygame.math.Vector2()
 
+    def take_damage(self, player, attack_type):
+        if not self.invulnerable:
+            self.direction = self.get_player_direction(player)
+            self.invulnerable = True
+            self.invulnerability_time = pygame.time.get_ticks()
+            if attack_type == 'weapon':
+                self.current_stats['health'] -= player.get_full_weapon_damage()
+            elif attack_type == 'spell':
+                self.current_stats['health'] -= player.get_full_spell_damage()
+            if self.current_stats['health'] <= 0:
+                self.kill()
+
+    def hit_reaction(self):
+        if self.invulnerable:
+            self.direction *= -self.current_stats['resistance']
+            if self.image is not None:
+                self.image.set_alpha(self.flicker_alpha_value())
+        elif self.image is not None:
+            self.image.set_alpha(255)
+
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
         if self.attacking and current_time - self.attack_time >= self.attack_cooldown:
             self.attacking = False
+        if self.invulnerable and current_time - self.invulnerability_time >= self.invulnerability_cooldown:
+            self.invulnerable = False
 
     def update_status(self, player):
         distance = self.get_player_distance(player)
@@ -69,6 +95,8 @@ class Enemy(Entity):
             self.attacking = True
             self.attack_time = pygame.time.get_ticks()
             self.status = 'attack'
+            self.damage_player(
+                self.current_stats['damage'], self.current_stats['attack_type'])
             self.direction = pygame.math.Vector2()
         elif distance <= self.current_stats['notice_radius']:
             self.status = 'move'
@@ -79,6 +107,7 @@ class Enemy(Entity):
 
     def update(self):
         self.cooldowns()
+        self.hit_reaction()
         self.move()
         self.animate()
 

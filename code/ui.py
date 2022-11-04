@@ -3,6 +3,7 @@ from os import path
 import pygame
 from settings import (BAR_BORDER_WIDTH, BAR_HEIGHT, BAR_MARGIN,
                       EXP_BORDER_WIDTH, EXP_MARGIN, EXP_PADDING,
+                      GAME_OVER_BORDER_WIDTH, GAME_OVER_PADDING,
                       HEALTH_BAR_WIDTH, HEALTH_COLOR, ITEM_BOX_BORDER_WIDTH,
                       ITEM_BOX_MARGIN, ITEM_BOX_SIZE, MANA_BAR_WIDTH,
                       MANA_COLOR, TEXT_COLOR, UI_BG_COLOR, UI_BORDER_COLOR,
@@ -69,6 +70,17 @@ class UI:
             ITEM_BOX_MARGIN - ITEM_BOX_SIZE,
             self.player.switching_spell, spell_image)
 
+    def draw_game_over_text(self):
+        text_surface = self.font.render('GAME OVER', False, TEXT_COLOR)
+        x = WINDOW_WIDTH / 2
+        y = WINDOW_HEIGHT / 2
+        text_rect = text_surface.get_rect(center=(x, y))
+        box_rect = text_rect.inflate(GAME_OVER_PADDING, GAME_OVER_PADDING)
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, box_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR,
+                         box_rect, GAME_OVER_BORDER_WIDTH)
+        self.display_surface.blit(text_surface, text_rect)
+
     def draw(self):
         self.draw_bar(
             self.player.current_stats['health'], self.player.initial_stats['health'], HEALTH_COLOR,
@@ -79,3 +91,5 @@ class UI:
         self.draw_exp(self.player.current_stats['exp'])
         self.draw_weapon_box()
         self.draw_spell_box()
+        if not self.player.groups():
+            self.draw_game_over_text()

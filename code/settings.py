@@ -11,6 +11,8 @@ BAR_MARGIN = 10
 EXP_BORDER_WIDTH = 5
 EXP_MARGIN = 20
 EXP_PADDING = 20
+GAME_OVER_BORDER_WIDTH = 5
+GAME_OVER_PADDING = 20
 HEALTH_BAR_WIDTH = 200
 ITEM_BOX_SIZE = 80
 ITEM_BOX_MARGIN = 20
@@ -65,13 +67,13 @@ WEAPONS = {
 # spells
 SPELLS = {
     'flame': {
-        'strength': 5,
+        'damage': 5,
         'cost': 20,
         'graphic': '../graphics/spells/flame/full.png',
         'name': 'Flame',
     },
     'heal': {
-        'strength': 20,
+        'damage': 20,
         'cost': 10,
         'graphic': '../graphics/spells/heal/full.png',
         'name': 'Heal',
