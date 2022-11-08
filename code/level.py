@@ -1,9 +1,10 @@
 from os import path
-from random import choice
+from random import choice, randint
 from typing import cast
 
 import pygame
 from enemy import Enemy
+from particles import AnimationPlayer
 from player import Player
 from settings import TILESIZE
 from spell import Spell
@@ -30,6 +31,7 @@ class Level:
         }
         self.create_map()
         self.ui = UI(self.player)
+        self.animation_player = AnimationPlayer()
 
     def create_map(self):
         layouts = {
@@ -84,7 +86,8 @@ class Level:
                                     [self.visible_sprites, self.attackable_sprites],
                                     self.entities[column],
                                     self.obstacle_sprites,
-                                    self.damage_player)
+                                    self.damage_player,
+                                    self.trigger_death_particles)
 
     def create_attack(self):
         self.current_attack = Weapon(
@@ -117,6 +120,12 @@ class Level:
                 if collision_sprites:
                     for collision_sprite in collision_sprites:
                         if type(collision_sprite) is Tile and cast(Tile, collision_sprite).sprite_type == 'grass':
+                            if collision_sprite.rect is not None:
+                                for _ in range(randint(3, 6)):
+                                    position = collision_sprite.rect.center
+                                    offset = pygame.math.Vector2(0, 75)
+                                    self.animation_player.create_particles(
+                                        (position[0] - offset.x, position[1] - offset.y), [self.visible_sprites], 'grass', True)
                             collision_sprite.kill()
                         elif type(collision_sprite) is Enemy and cast(Enemy, collision_sprite).sprite_type == 'enemy':
                             if type(attack_sprite) is Weapon or type(attack_sprite) is Spell:
@@ -125,6 +134,13 @@ class Level:
 
     def damage_player(self, amount, attack_type):
         self.player.take_damage(amount)
+        if self.player.rect is not None:
+            self.animation_player.create_particles(
+                self.player.rect.center, [self.visible_sprites], attack_type)
+
+    def trigger_death_particles(self, position, particle_type):
+        self.animation_player.create_particles(
+            position, [self.visible_sprites], particle_type)
 
     def run(self):
         self.visible_sprites.update()

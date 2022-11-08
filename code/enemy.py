@@ -7,7 +7,7 @@ from support import import_folder
 
 
 class Enemy(Entity):
-    def __init__(self, position, groups, enemy_type, obstacle_sprites, damage_player):
+    def __init__(self, position, groups, enemy_type, obstacle_sprites, damage_player, trigger_death_particles):
         self.enemy_type = enemy_type
         super().__init__(position, groups, obstacle_sprites)
         self.sprite_type = 'enemy'
@@ -23,6 +23,7 @@ class Enemy(Entity):
         self.invulnerable = False
         self.invulnerability_time = 0
         self.invulnerability_cooldown = 300
+        self.trigger_death_particles = trigger_death_particles
         self.current_stats = ENEMIES[self.enemy_type].copy()
 
     def import_animations(self):
@@ -69,6 +70,9 @@ class Enemy(Entity):
             elif attack_type == 'spell':
                 self.current_stats['health'] -= player.get_full_spell_damage()
             if self.current_stats['health'] <= 0:
+                if self.rect is not None:
+                    self.trigger_death_particles(
+                        self.rect.center, self.enemy_type)
                 self.kill()
 
     def hit_reaction(self):
