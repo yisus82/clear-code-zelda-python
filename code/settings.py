@@ -67,13 +67,15 @@ WEAPONS = {
 # spells
 SPELLS = {
     'flame': {
-        'damage': 5,
+        'type': 'attack',
+        'strength': 5,
         'cost': 20,
         'graphic': '../graphics/spells/flame/full.png',
         'name': 'Flame',
     },
     'heal': {
-        'damage': 20,
+        'type': 'health',
+        'strength': 20,
         'cost': 10,
         'graphic': '../graphics/spells/heal/full.png',
         'name': 'Heal',

@@ -58,6 +58,7 @@ class AnimationPlayer():
 class ParticleEffect(pygame.sprite.Sprite):
     def __init__(self, position, groups, animation_frames):
         super().__init__(groups)
+        self.sprite_type = 'particle'
         self.animation_frames = animation_frames
         self.frame_index = 0
         self.animation_speed = 0.15

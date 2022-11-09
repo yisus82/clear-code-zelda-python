@@ -67,7 +67,7 @@ class Enemy(Entity):
             self.invulnerability_time = pygame.time.get_ticks()
             if attack_type == 'weapon':
                 self.current_stats['health'] -= player.get_full_weapon_damage()
-            elif attack_type == 'spell':
+            elif attack_type == 'particle':
                 self.current_stats['health'] -= player.get_full_spell_damage()
             if self.current_stats['health'] <= 0:
                 if self.rect is not None:

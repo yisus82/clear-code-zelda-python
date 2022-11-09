@@ -4,7 +4,7 @@ from typing import cast
 
 import pygame
 from enemy import Enemy
-from particles import AnimationPlayer
+from particles import AnimationPlayer, ParticleEffect
 from player import Player
 from settings import TILESIZE
 from spell import Spell
@@ -99,17 +99,16 @@ class Level:
             self.current_attack = None
 
     def create_spell(self):
-        self.current_spell = self.player.spell['name']
-        print('Casting', self.current_spell, '...')
-        print(
-            'damage:',
-            self.player.spell['damage'] + self.player.current_stats['magic'],
-            'cost:',
-            self.player.spell['cost'])
+        if self.player.current_stats['mana'] >= self.player.spell['cost']:
+            if self.player.spell['type'] == 'attack':
+                self.current_spell = Spell(
+                    self.player, [self.visible_sprites, self.attack_sprites], self.animation_player)
+            else:
+                self.current_spell = Spell(
+                    self.player, [self.visible_sprites], self.animation_player)
 
     def destroy_spell(self):
         if self.current_spell is not None:
-            print(self.current_spell, 'casted!')
             self.current_spell = None
 
     def check_attack_collisions(self):
@@ -128,7 +127,7 @@ class Level:
                                         (position[0] - offset.x, position[1] - offset.y), [self.visible_sprites], 'grass', True)
                             collision_sprite.kill()
                         elif type(collision_sprite) is Enemy and cast(Enemy, collision_sprite).sprite_type == 'enemy':
-                            if type(attack_sprite) is Weapon or type(attack_sprite) is Spell:
+                            if type(attack_sprite) is Weapon or type(attack_sprite) is ParticleEffect:
                                 collision_sprite.take_damage(
                                     self.player, attack_sprite.sprite_type)
 

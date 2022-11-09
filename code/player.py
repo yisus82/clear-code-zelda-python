@@ -40,19 +40,28 @@ class Player(Entity):
         self.invulnerability_time = 0
         self.invulnerability_cooldown = 500
         self.initial_stats = {
-            'health': 100,
-            'mana': 60,
+            'health': 100.0,
+            'mana': 60.0,
             'attack': 10,
-            'magic': 4,
+            'magic': 5,
             'speed': 5,
+            'exp': 0,
         }
         self.current_stats = {
             'health': self.initial_stats['health'],
             'mana': self.initial_stats['mana'],
-            'speed': self.initial_stats['speed'],
             'attack': self.initial_stats['attack'],
             'magic': self.initial_stats['magic'],
-            'exp': 0,
+            'speed': self.initial_stats['speed'],
+            'exp': self.initial_stats['exp'],
+        }
+        self.max_stats = {
+            'health': self.initial_stats['health'],
+            'mana': self.initial_stats['mana'],
+            'attack': self.initial_stats['attack'],
+            'magic': self.initial_stats['magic'],
+            'speed': self.initial_stats['speed'],
+            'exp': self.initial_stats['exp'],
         }
 
     def import_animations(self):
@@ -119,15 +128,15 @@ class Player(Entity):
         self.weapon_index = (self.weapon_index + 1) % len(WEAPONS)
         self.weapon = WEAPONS[[*WEAPONS][self.weapon_index]]
 
+    def change_spell(self):
+        self.spell_index = (self.spell_index + 1) % len(SPELLS)
+        self.spell = SPELLS[[*SPELLS][self.spell_index]]
+
     def get_full_weapon_damage(self):
         return self.weapon['damage'] + self.current_stats['attack']
 
     def get_full_spell_damage(self):
-        return self.spell['damage'] + self.current_stats['magic']
-
-    def change_spell(self):
-        self.spell_index = (self.spell_index + 1) % len(SPELLS)
-        self.spell = SPELLS[[*SPELLS][self.spell_index]]
+        return self.spell['strength'] + self.current_stats['magic']
 
     def take_damage(self, amount):
         if not self.invulnerable:
@@ -143,6 +152,12 @@ class Player(Entity):
                 self.image.set_alpha(self.flicker_alpha_value())
         elif self.image is not None:
             self.image.set_alpha(255)
+
+    def recover_mana(self):
+        if self.current_stats['mana'] < self.max_stats['mana']:
+            self.current_stats['mana'] += 0.01 * self.current_stats['magic']
+        else:
+            self.current_stats['mana'] = self.max_stats['mana']
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -174,6 +189,7 @@ class Player(Entity):
             self.status = self.status.split('_')[0] + '_attack'
 
     def update(self):
+        self.recover_mana()
         self.cooldowns()
         self.hit_reaction()
         self.input()
