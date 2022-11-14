@@ -23,6 +23,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m or event.key == pygame.K_ESCAPE:
+                        self.level.toggle_upgrade_menu()
             self.screen.fill('black')
             self.level.run()
             pygame.display.update()

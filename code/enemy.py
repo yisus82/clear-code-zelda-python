@@ -7,7 +7,8 @@ from support import import_folder
 
 
 class Enemy(Entity):
-    def __init__(self, position, groups, enemy_type, obstacle_sprites, damage_player, trigger_death_particles):
+    def __init__(self, position, groups, enemy_type, obstacle_sprites,
+                 damage_player, trigger_death_particles, give_exp):
         self.enemy_type = enemy_type
         super().__init__(position, groups, obstacle_sprites)
         self.sprite_type = 'enemy'
@@ -24,6 +25,7 @@ class Enemy(Entity):
         self.invulnerability_time = 0
         self.invulnerability_cooldown = 300
         self.trigger_death_particles = trigger_death_particles
+        self.give_exp = give_exp
         self.current_stats = ENEMIES[self.enemy_type].copy()
 
     def import_animations(self):
@@ -73,6 +75,7 @@ class Enemy(Entity):
                 if self.rect is not None:
                     self.trigger_death_particles(
                         self.rect.center, self.enemy_type)
+                self.give_exp(self.current_stats['exp'])
                 self.kill()
 
     def hit_reaction(self):

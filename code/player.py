@@ -39,29 +39,56 @@ class Player(Entity):
         self.invulnerable = False
         self.invulnerability_time = 0
         self.invulnerability_cooldown = 500
-        self.initial_stats = {
+        self.base_stats = {
             'health': 100.0,
             'mana': 60.0,
-            'attack': 10,
-            'magic': 5,
-            'speed': 5,
-            'exp': 0,
+            'attack': 10.0,
+            'magic': 5.0,
+            'speed': 5.0,
+            'exp': 500,
         }
         self.current_stats = {
-            'health': self.initial_stats['health'],
-            'mana': self.initial_stats['mana'],
-            'attack': self.initial_stats['attack'],
-            'magic': self.initial_stats['magic'],
-            'speed': self.initial_stats['speed'],
-            'exp': self.initial_stats['exp'],
+            'health': self.base_stats['health'],
+            'mana': self.base_stats['mana'],
+            'attack': self.base_stats['attack'],
+            'magic': self.base_stats['magic'],
+            'speed': self.base_stats['speed'],
+            'exp': self.base_stats['exp'],
         }
         self.max_stats = {
-            'health': self.initial_stats['health'],
-            'mana': self.initial_stats['mana'],
-            'attack': self.initial_stats['attack'],
-            'magic': self.initial_stats['magic'],
-            'speed': self.initial_stats['speed'],
-            'exp': self.initial_stats['exp'],
+            'health': 300,
+            'mana': 140,
+            'attack': 20,
+            'magic': 10,
+            'speed': 10,
+            'exp': 99999,
+        }
+        self.upgrades = {
+            'health': {
+                'cost': 500.0,
+                'amount': 10.0,
+                'next': 50.0,
+            },
+            'mana': {
+                'cost': 500.0,
+                'amount': 10.0,
+                'next': 50.0,
+            },
+            'attack': {
+                'cost': 500.0,
+                'amount': 1.0,
+                'next': 50.0,
+            },
+            'magic': {
+                'cost': 500.0,
+                'amount': 1.0,
+                'next': 50.0,
+            },
+            'speed': {
+                'cost': 500.0,
+                'amount': 1.0,
+                'next': 50.0,
+            },
         }
 
     def import_animations(self):
@@ -154,10 +181,24 @@ class Player(Entity):
             self.image.set_alpha(255)
 
     def recover_mana(self):
-        if self.current_stats['mana'] < self.max_stats['mana']:
+        if self.current_stats['mana'] < self.base_stats['mana']:
             self.current_stats['mana'] += 0.01 * self.current_stats['magic']
         else:
-            self.current_stats['mana'] = self.max_stats['mana']
+            self.current_stats['mana'] = self.base_stats['mana']
+
+    def receive_exp(self, amount):
+        self.current_stats['exp'] += amount
+        if self.current_stats['exp'] > self.max_stats['exp']:
+            self.current_stats['exp'] = self.max_stats['exp']
+
+    def upgrade_stats(self, name):
+        if int(self.upgrades[name]['cost']) <= self.current_stats['exp'] and self.base_stats[name] < self.max_stats[name]:
+            self.current_stats['exp'] -= self.upgrades[name]['cost']
+            self.base_stats[name] += self.upgrades[name]['amount']
+            self.current_stats[name] = self.base_stats[name]
+            self.upgrades[name]['cost'] += self.upgrades[name]['next']
+            if self.base_stats[name] > self.max_stats[name]:
+                self.base_stats[name] = self.max_stats[name]
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()

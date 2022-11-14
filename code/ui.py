@@ -83,10 +83,10 @@ class UI:
 
     def draw(self):
         self.draw_bar(
-            self.player.current_stats['health'], self.player.initial_stats['health'], HEALTH_COLOR,
+            self.player.current_stats['health'], self.player.base_stats['health'], HEALTH_COLOR,
             self.health_bg_rect)
         self.draw_bar(
-            self.player.current_stats['mana'], self.player.initial_stats['mana'], MANA_COLOR,
+            self.player.current_stats['mana'], self.player.base_stats['mana'], MANA_COLOR,
             self.mana_bg_rect)
         self.draw_exp(self.player.current_stats['exp'])
         self.draw_weapon_box()

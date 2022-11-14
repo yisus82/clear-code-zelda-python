@@ -11,6 +11,7 @@ from spell import Spell
 from support import import_csv_file, import_folder
 from tile import Tile
 from ui import UI
+from upgrade_menu import UpgradeMenu
 from weapon import Weapon
 
 
@@ -30,7 +31,9 @@ class Level:
             '394': 'player',
         }
         self.create_map()
+        self.paused = False
         self.ui = UI(self.player)
+        self.upgrade_menu = UpgradeMenu(self.player)
         self.animation_player = AnimationPlayer()
 
     def create_map(self):
@@ -87,7 +90,8 @@ class Level:
                                     self.entities[column],
                                     self.obstacle_sprites,
                                     self.damage_player,
-                                    self.trigger_death_particles)
+                                    self.trigger_death_particles,
+                                    self.give_exp)
 
     def create_attack(self):
         self.current_attack = Weapon(
@@ -141,12 +145,21 @@ class Level:
         self.animation_player.create_particles(
             position, [self.visible_sprites], particle_type)
 
+    def give_exp(self, amount):
+        self.player.receive_exp(amount)
+
+    def toggle_upgrade_menu(self):
+        self.paused = not self.paused
+
     def run(self):
-        self.visible_sprites.update()
         self.visible_sprites.custom_draw(self.player)
-        self.visible_sprites.enemy_update(self.player)
-        self.check_attack_collisions()
         self.ui.draw()
+        if self.paused:
+            self.upgrade_menu.update()
+        else:
+            self.visible_sprites.update()
+            self.visible_sprites.enemy_update(self.player)
+            self.check_attack_collisions()
 
 
 class YSortCameraGroup(pygame.sprite.Group):
