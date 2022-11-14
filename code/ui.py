@@ -91,5 +91,5 @@ class UI:
         self.draw_exp(self.player.current_stats['exp'])
         self.draw_weapon_box()
         self.draw_spell_box()
-        if not self.player.groups():
+        if self.player.current_stats['health'] <= 0:
             self.draw_game_over_text()

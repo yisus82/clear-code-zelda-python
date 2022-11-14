@@ -16,7 +16,7 @@ class Enemy(Entity):
         self.status = 'idle'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
-        self.hitbox = self.rect.inflate(-1, -10)
+        self.hitbox = self.rect.inflate(-5, -10)
         self.attacking = False
         self.attack_time = 0
         self.attack_cooldown = 400
@@ -27,6 +27,13 @@ class Enemy(Entity):
         self.trigger_death_particles = trigger_death_particles
         self.give_exp = give_exp
         self.current_stats = ENEMIES[self.enemy_type].copy()
+        self.attack_sound = pygame.mixer.Sound(
+            self.current_stats['attack_sound'])
+        self.attack_sound.set_volume(0.3)
+        self.hit_sound = pygame.mixer.Sound('../audio/enemies/hit.wav')
+        self.hit_sound.set_volume(0.3)
+        self.death_sound = pygame.mixer.Sound('../audio/enemies/death.wav')
+        self.death_sound.set_volume(0.3)
 
     def import_animations(self):
         enemy_folder = path.join('..', 'graphics', 'enemies')
@@ -64,6 +71,7 @@ class Enemy(Entity):
 
     def take_damage(self, player, attack_type):
         if not self.invulnerable:
+            self.hit_sound.play()
             self.direction = self.get_player_direction(player)
             self.invulnerable = True
             self.invulnerability_time = pygame.time.get_ticks()
@@ -76,6 +84,7 @@ class Enemy(Entity):
                     self.trigger_death_particles(
                         self.rect.center, self.enemy_type)
                 self.give_exp(self.current_stats['exp'])
+                self.death_sound.play()
                 self.kill()
 
     def hit_reaction(self):
@@ -102,6 +111,7 @@ class Enemy(Entity):
             self.attacking = True
             self.attack_time = pygame.time.get_ticks()
             self.status = 'attack'
+            self.attack_sound.play()
             self.damage_player(
                 self.current_stats['damage'], self.current_stats['attack_type'])
             self.direction = pygame.math.Vector2()

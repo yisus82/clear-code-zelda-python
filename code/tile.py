@@ -10,6 +10,7 @@ class Tile(pygame.sprite.Sprite):
         if self.sprite_type == 'object':
             self.rect = self.image.get_rect(
                 topleft=(position[0], position[1] - TILESIZE))
+            self.hitbox = self.rect.inflate(-5, -40)
         else:
             self.rect = self.image.get_rect(topleft=position)
-        self.hitbox = self.rect.inflate(-1, -10)
+            self.hitbox = self.rect.inflate(-5, -10)

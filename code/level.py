@@ -96,6 +96,10 @@ class Level:
     def create_attack(self):
         self.current_attack = Weapon(
             self.player, [self.visible_sprites, self.attack_sprites])
+        self.current_attack_sound = pygame.mixer.Sound(
+            self.player.weapon['audio'])
+        self.current_attack_sound.set_volume(0.4)
+        self.current_attack_sound.play()
 
     def destroy_attack(self):
         if self.current_attack is not None:
@@ -110,6 +114,10 @@ class Level:
             else:
                 self.current_spell = Spell(
                     self.player, [self.visible_sprites], self.animation_player)
+            self.current_spell_sound = pygame.mixer.Sound(
+                self.player.spell['audio'])
+            self.current_spell_sound.set_volume(0.4)
+            self.current_spell_sound.play()
 
     def destroy_spell(self):
         if self.current_spell is not None:
@@ -156,7 +164,7 @@ class Level:
         self.ui.draw()
         if self.paused:
             self.upgrade_menu.update()
-        else:
+        elif self.player.current_stats['health'] > 0:
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.check_attack_collisions()

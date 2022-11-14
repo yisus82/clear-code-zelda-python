@@ -15,7 +15,7 @@ class Player(Entity):
         self.status = 'down_idle'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
-        self.hitbox = self.rect.inflate(-1, -25)
+        self.hitbox = self.rect.inflate(-5, -25)
         self.attacking = False
         self.attack_time = 0
         self.attack_cooldown = 400
@@ -166,12 +166,10 @@ class Player(Entity):
         return self.spell['strength'] + self.current_stats['magic']
 
     def take_damage(self, amount):
-        if not self.invulnerable:
+        if not self.invulnerable and self.current_stats['health'] > 0:
             self.invulnerable = True
             self.invulnerability_time = pygame.time.get_ticks()
             self.current_stats['health'] -= amount
-            if self.current_stats['health'] <= 0:
-                self.kill()
 
     def hit_reaction(self):
         if self.invulnerable:
